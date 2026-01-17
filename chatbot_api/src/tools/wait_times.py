@@ -2,11 +2,11 @@ import os
 from typing import Any
 
 import numpy as np
-from langchain_community.graphs import Neo4jGraph
-
+from langchain_neo4j import Neo4jGraph
+from langchain.tools import tool
 
 def _get_current_hospitals() -> list[str]:
-    """Fetch a list of current hospital names from a Neo4j database."""
+    
     graph = Neo4jGraph(
         url=os.getenv("NEO4J_URI"),
         username=os.getenv("NEO4J_USERNAME"),
@@ -34,11 +34,27 @@ def _get_current_wait_time_minutes(hospital: str) -> int:
         return -1
 
     return np.random.randint(low=0, high=600)
+    
+@tool("Hospitals", description="""
+        Use this tool to fetch a list of current hospital names from a Neo4j database.
+        It does not provide historical or aggregated hospital data.
+        """
+)
+def get_current_hospitals_tools() -> list[str]:
+    """Fetch a list of current hospital names from a Neo4j database."""
+    
+    return _get_current_hospitals()
 
 
+@tool("Waits", description="""
+        Use this tool for questions about the current wait time at a specific hospital.
+        It only provides real-time wait times and does not support historical or aggregated data.
+        Do not include the word “hospital” in the input—only pass the hospital's name.
+        For example, if the question is "What is the current wait time at Jordan Inc Hospital?", the input should be: "Jordan Inc".
+        """)
 def get_current_wait_times(hospital: str) -> str:
     """Get the current wait time at a hospital as a string."""
-
+    
     wait_time_in_minutes = _get_current_wait_time_minutes(hospital)
 
     if wait_time_in_minutes == -1:
@@ -53,10 +69,14 @@ def get_current_wait_times(hospital: str) -> str:
 
     return formatted_wait_time
 
-
+@tool("Availability", description="""
+        Use this tool to identify the hospital with the shortest current wait time.
+        It does not provide historical or aggregated wait time data.
+        The tool returns a dictionary where each key is a hospital name and the value is its current wait time in minutes.
+        """)
 def get_most_available_hospital(_: Any) -> dict[str, float]:
     """Find the hospital with the shortest wait time."""
-
+    
     current_hospitals = _get_current_hospitals()
 
     current_wait_times = [

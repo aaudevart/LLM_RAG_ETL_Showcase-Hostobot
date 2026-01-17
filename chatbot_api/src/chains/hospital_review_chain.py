@@ -1,19 +1,23 @@
 import os
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_neo4j import Neo4jVector
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
+from langchain.chat_models import init_chat_model
 
-from langchain.chains import RetrievalQA
-from langchain.prompts import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    PromptTemplate,
-    SystemMessagePromptTemplate,
-)
-from langchain.vectorstores.neo4j_vector import Neo4jVector
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+HOSPITAL_QA_EMBEDDING_MODEL = os.getenv("HOSPITAL_QA_EMBEDDING_MODEL")
+HOSPITAL_QA_MODEL = os.getenv("HOSPITAL_QA_MODEL")    
+HOSPITAL_QA_PROVIDER = os.getenv("HOSPITAL_QA_PROVIDER")
 
-HOSPITAL_QA_MODEL = os.getenv("HOSPITAL_QA_MODEL")
+if HOSPITAL_QA_PROVIDER == "google_genai":
+    embedding = GoogleGenerativeAIEmbeddings(model=os.getenv("HOSPITAL_QA_EMBEDDING_MODEL"),
+                                            task_type="RETRIEVAL_DOCUMENT")
+else:
+    embedding = OpenAIEmbeddings()
 
 neo4j_vector_index = Neo4jVector.from_existing_graph(
-    embedding=OpenAIEmbeddings(),
+    embedding=embedding,
     url=os.getenv("NEO4J_URI"),
     username=os.getenv("NEO4J_USERNAME"),
     password=os.getenv("NEO4J_PASSWORD"),
@@ -28,26 +32,22 @@ neo4j_vector_index = Neo4jVector.from_existing_graph(
     embedding_node_property="embedding",
 )
 
+retriever=neo4j_vector_index.as_retriever(k=12)
+
 review_template = """Your task is to analyze patient reviews to answer questions about their experiences at a hospital. Use the provided context to guide your responses. Be as thorough as possible, but only rely on the information given—do not infer or invent details. If the answer isn't in the context, say you don't know."""
 
-review_system_prompt = SystemMessagePromptTemplate(
-    prompt=PromptTemplate(
-        input_variables=["context"], template=review_template
-    )
-)
+review_prompt = ChatPromptTemplate.from_messages([
+    ("system", review_template+ "\n\n{context}"),
+    ("human", "{question}")
+])
 
-review_human_prompt = HumanMessagePromptTemplate(
-    prompt=PromptTemplate(input_variables=["question"], template="{question}")
-)
-messages = [review_system_prompt, review_human_prompt]
+chat_qa_model = init_chat_model(model_provider=HOSPITAL_QA_PROVIDER,
+                                    model=HOSPITAL_QA_MODEL,
+                                    temperature=0)
 
-review_prompt = ChatPromptTemplate(
-    input_variables=["context", "question"], messages=messages
-)
 
-reviews_vector_chain = RetrievalQA.from_chain_type(
-    llm=ChatOpenAI(model=HOSPITAL_QA_MODEL, temperature=0),
-    chain_type="stuff",
-    retriever=neo4j_vector_index.as_retriever(k=12),
+reviews_vector_chain = (
+    {"context": retriever, "question": RunnablePassthrough()}
+    | review_prompt
+    | chat_qa_model
 )
-reviews_vector_chain.combine_documents_chain.llm_chain.prompt = review_prompt

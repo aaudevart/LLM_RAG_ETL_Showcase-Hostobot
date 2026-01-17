@@ -1,12 +1,14 @@
 import os
 
-from langchain.chains import GraphCypherQAChain
-from langchain.prompts import PromptTemplate
-from langchain_community.graphs import Neo4jGraph
-from langchain_openai import ChatOpenAI
+from langchain_neo4j import GraphCypherQAChain
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_neo4j import Neo4jGraph
+from langchain.chat_models import init_chat_model
 
-HOSPITAL_QA_MODEL = os.getenv("HOSPITAL_QA_MODEL")
+HOSPITAL_QA_MODEL = os.getenv("HOSPITAL_QA_MODEL")    
+HOSPITAL_QA_PROVIDER = os.getenv("HOSPITAL_QA_PROVIDER")
 HOSPITAL_CYPHER_MODEL = os.getenv("HOSPITAL_CYPHER_MODEL")
+HOSPITAL_CYPHER_PROVIDER = os.getenv("HOSPITAL_CYPHER_PROVIDER")
 
 graph = Neo4jGraph(
     url=os.getenv("NEO4J_URI"),
@@ -94,14 +96,12 @@ follow as with statement (e.g. WITH v as visit, c.billing_amount as
 billing_amount)
 If you need to divide numbers, make sure to filter the denominator to be non
 zero.
-
-The question is:
-{question}
 """
 
-cypher_generation_prompt = PromptTemplate(
-    input_variables=["schema", "question"], template=cypher_generation_template
-)
+cypher_generation_prompt = ChatPromptTemplate.from_messages([
+    ("system", cypher_generation_template),
+    ("human", "{question}")
+])
 
 qa_generation_template = """
 You are an assistant responsible for turning the results of a Neo4j Cypher query into a clear, human-readable answer.
@@ -114,9 +114,6 @@ Your response should directly answer the user's question using only the provided
 Query Results:
 {context}  
 
-User Question:
-{question}
-
 Guidelines:
 If the results are empty (i.e., []), say you don't know the answer.
 If the results are not empty, generate a complete and helpful answer using the data.
@@ -126,17 +123,26 @@ When listing names or items, format them clearly to avoid ambiguity.
 Never claim insufficient information if data is present—use what is available and show all relevant results when needed.
 """
 
-qa_generation_prompt = PromptTemplate(
-    input_variables=["context", "question"], template=qa_generation_template
-)
+qa_generation_prompt = ChatPromptTemplate.from_messages([
+    ("system", qa_generation_template),
+    ("human", "{question}")
+])
+
+chat_cypher_model = init_chat_model(model_provider=HOSPITAL_CYPHER_PROVIDER,
+                                    model=HOSPITAL_CYPHER_MODEL,
+                                    temperature=0)
+chat_qa_model = init_chat_model(model_provider=HOSPITAL_QA_PROVIDER,
+                                    model=HOSPITAL_QA_MODEL,
+                                    temperature=0)
 
 hospital_cypher_chain = GraphCypherQAChain.from_llm(
-    cypher_llm=ChatOpenAI(model=HOSPITAL_CYPHER_MODEL, temperature=0),
-    qa_llm=ChatOpenAI(model=HOSPITAL_QA_MODEL, temperature=0),
+    cypher_llm=chat_cypher_model,
+    qa_llm=chat_qa_model,
     graph=graph,
     verbose=True,
     qa_prompt=qa_generation_prompt,
     cypher_prompt=cypher_generation_prompt,
     validate_cypher=True,
     top_k=100,
+    allow_dangerous_requests=True,
 )
