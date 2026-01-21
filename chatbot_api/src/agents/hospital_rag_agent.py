@@ -29,8 +29,6 @@ def get_reviews(question: Any) -> str:
         Always provide the full prompt as input : for example, if the question is "How many visits have there been?", then the input should be exactly: "How many visits have there been?
         """)
 def get_graph(question: Any) -> str:
-    print("get_graph")
-    print(question)
     return hospital_cypher_chain.invoke(question)
 
 chat_model = init_chat_model(model_provider=HOSPITAL_AGENT_PROVIDER,

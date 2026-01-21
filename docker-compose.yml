@@ -1,9 +1,30 @@
 services:
+  neo4j:
+    image: neo4j:latest
+    volumes:
+      - /$HOME/neo4j/logs:/logs
+      - /$HOME/neo4j/config:/config
+      - /$HOME/neo4j/data:/data
+      - /$HOME/neo4j/plugins:/plugins
+    environment:
+      - NEO4J_AUTH=neo4j/your_password
+      #1. Tells Docker to download the APOC plugin on startup
+      - NEO4J_PLUGINS=["apoc"]
+      # 2. Removes security restrictions for APOC procedures
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+      - NEO4J_dbms_security_procedures_allowlist=apoc.*
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    restart: always
+
   hospital_neo4j_etl:
     build:
       context: ./hospital_neo4j_etl
     env_file:
       - .env
+    depends_on:
+      - neo4j
 
   chatbot_api:
     build:
