@@ -39,5 +39,9 @@ chat_model = init_chat_model(model_provider=HOSPITAL_AGENT_PROVIDER,
 hospital_rag_agent = create_agent(
     model=chat_model,
     system_prompt="You are a helpful assistant",
-    tools=[get_current_wait_times, get_most_available_hospital, get_reviews, get_graph, get_current_hospitals_tools],
+    tools=[get_current_wait_times,
+           get_most_available_hospital,
+           get_current_hospitals_tools,
+           get_reviews,
+           get_graph]
 )

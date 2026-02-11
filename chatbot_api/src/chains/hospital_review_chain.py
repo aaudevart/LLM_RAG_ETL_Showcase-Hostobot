@@ -32,7 +32,7 @@ neo4j_vector_index = Neo4jVector.from_existing_graph(
     embedding_node_property="embedding",
 )
 
-retriever=neo4j_vector_index.as_retriever(k=12)
+retriever=neo4j_vector_index.as_retriever(search_kwargs={'k': 12})
 
 review_template = """Your task is to analyze patient reviews to answer questions about their experiences at a hospital. Use the provided context to guide your responses. Be as thorough as possible, but only rely on the information given—do not infer or invent details. If the answer isn't in the context, say you don't know."""
 

@@ -144,5 +144,5 @@ hospital_cypher_chain = GraphCypherQAChain.from_llm(
     cypher_prompt=cypher_generation_prompt,
     validate_cypher=True,
     top_k=100,
-    allow_dangerous_requests=True,
+    allow_dangerous_requests=True
 )
