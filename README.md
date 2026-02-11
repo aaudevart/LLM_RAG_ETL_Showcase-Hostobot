@@ -29,7 +29,7 @@ Using an **Agentic Microservices Architecture** 🏗️, this is a **showcase** 
 ## ⚙️ Configuration
 To be able to run the application, you only need to have:
 - 🔑 NEO4J IDs (URI, Username, Password)
-- 🔑 An OpenAI or Gemini API Key
+- 🔑 An OpenAI or Gemini or Mistral API Key
 
 **📝 Action: Fill the .env file and ensure Docker Desktop 🐳 is running before executing the commands.**
 
