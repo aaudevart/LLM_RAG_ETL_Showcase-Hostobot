@@ -74,7 +74,7 @@ def get_current_wait_times(hospital: str) -> str:
         It does not provide historical or aggregated wait time data.
         The tool returns a dictionary where each key is a hospital name and the value is its current wait time in minutes.
         """)
-def get_most_available_hospital(_: Any) -> dict[str, float]:
+def get_most_available_hospital() -> dict[str, float]:
     """Find the hospital with the shortest wait time."""
     
     current_hospitals = _get_current_hospitals()
