@@ -7,9 +7,9 @@
 
 <img src="https://img.freepik.com/vecteurs-libre/gens-qui-marchent-assis-au-batiment-hopital-exterieur-verre-clinique-ville-illustration-vectorielle-plane-pour-aide-medicale-urgence-architecture-concept-soins-sante_74855-10130.jpg?semt=ais_hybrid&w=740&q=80"/>
   
-| Neo4j | Gemini | OpenAI | MistralAI |
-| :---: | :---: | :---: | :---: |
-| <img src="https://miro.medium.com/0*4u0EbR8ZDo48DqF-.jpeg" width="150"> | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/1280px-Google_Gemini_logo.svg.png" width="150"> | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/960px-OpenAI_Logo.svg.png" width="150"> | <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMTH6AVMJcaD1iKlj-L6Tw36jjd1x403Nb_Q&s" width="150"> |
+| LangChain | Neo4j | Gemini | OpenAI | MistralAI |
+| :---: | :---: |:---: | :---: | :---: |
+| <img src="https://cdn.brandfetch.io/idzf7Sjo28/w/800/h/184/theme/dark/id12EQi2QW.png?c=1bxid64Mup7aczewSAYMX&t=1773104478968" width="200">| <img src="https://dist.neo4j.com/wp-content/uploads/20230926084108/Logo_FullColor_RGB_TransBG.svg" width="150"> | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/1280px-Google_Gemini_logo.svg.png" width="150"> | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/960px-OpenAI_Logo.svg.png" width="150"> | <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMTH6AVMJcaD1iKlj-L6Tw36jjd1x403Nb_Q&s" width="150"> |
 
 </div>
 
@@ -19,11 +19,11 @@ Using an **Agentic Microservices Architecture** 🏗️, this is a **showcase** 
 ## Architecture
 
 🏥 Hospital RAG Agent's tools:<br/>
+|_ 🛠️ Current hospitals => get the list of hospitals from Neo4j database<br/>
 |_ 🛠️ Waits => generate a random wait time<br/>
 |_ 🛠️ Most available hospital => generate a random hospital<br/>
-|_ 🛠️ Current hospitals => get the list of hospitals from Neo4j database<br/>
-|_ 🔗🛠️ Graph => use a CypherChain for question-answering against a graph by generating Cypher statements<br/>
 |_ 🔗🛠️ Reviews => use a Neo4jVectorSearchChain on Reviews node which is a powerful method used to add "Vector Search" capabilities to an already populated graph database
+|_ 🔗🛠️ Graph => use a CypherChain for question-answering against a graph by generating Cypher statements<br/>
 
 
 ## ⚙️ Configuration
