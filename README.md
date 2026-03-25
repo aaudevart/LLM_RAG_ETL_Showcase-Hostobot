@@ -22,7 +22,7 @@ Using an **Agentic Microservices Architecture** 🏗️, this is a **showcase** 
 |_ 🛠️ Current hospitals => get the list of hospitals from Neo4j database<br/>
 |_ 🛠️ Waits => generate a random wait time<br/>
 |_ 🛠️ Most available hospital => generate a random hospital<br/>
-|_ 🔗🛠️ Reviews => use a Neo4jVectorSearchChain on Reviews node which is a powerful method used to add "Vector Search" capabilities to an already populated graph database
+|_ 🔗🛠️ Reviews => use a Neo4jVectorSearchChain on Reviews node which is a powerful method used to add "Vector Search" capabilities to an already populated graph database<br/>
 |_ 🔗🛠️ Graph => use a CypherChain for question-answering against a graph by generating Cypher statements<br/>
 
 
