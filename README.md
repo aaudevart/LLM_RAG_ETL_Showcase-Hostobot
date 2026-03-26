@@ -18,9 +18,17 @@
 
 ## 🚀 Overview
 
-**HOSTOBOT** is an **Agentic Microservices Architecture** 🏗️ that serves as a showcase of a Multi-Agent System using **LangChain Agents** 🧠. By connecting a Large Language Model (LLM) with a set of powerful, specialized tools, it interacts with a **Graph RAG** database (Neo4j) 🕸️ and a MiddleBack/ETL pipeline written in Python 🐍.
+**HOSTOBOT** is an advanced **Agentic Microservices** demonstration combining **Large Language Models (LLMs)** with a **Graph Database (Neo4j)** to deliver a powerful **Hybrid RAG (Retrieval-Augmented Generation)** system.
+
+Traditional RAG systems often struggle with structured aggregation and relationship-heavy queries. **HOSTOBOT** addresses this limitation using a **Router Agent** that dynamically selects the best tool:
+
+- ⚙️ **Python Tools** → real-time simulations and computations
+- 🔎 **Vector Search** → qualitative insights (patient sentiment)
+- 🧠 **Graph Cypher Generation** → quantitative analytics
 
 This platform empowers users to effortlessly request complex hospital-related data using natural language queries.
+
+The code is written in Python 🐍.
 
 ---
 
@@ -44,6 +52,79 @@ To run the application, you need the following prerequisites:
 - 🔑 **AI API Key**: Choose between OpenAI, Gemini, or Mistral.
 
 > **📝 Action:** Provide these credentials in your `.env` file and ensure **Docker Desktop 🐳** is running before proceeding.
+
+---
+
+## 📂 Project Structure
+
+```plaintext
+
+LLM_RAG_ETL_Showcase-Hostobot/
+├── .env                        # Critical environment configurations
+├── docker-compose.yml          # Orchestration for all 4 services
+│
+├── img/                        # Images to display in the Readme
+│   └── dbscheme.png
+│   
+├── hospital_neo4j_etl/         # DATA LAYER
+│   ├── src/
+│   │   ├── hospital_bulk_csv_write.py  # Bulk loader & relationship mapper
+│   │   └── entrypoint.sh               # Execution script
+│   └── Dockerfile
+│
+├── chatbot_api/                # LOGIC LAYER (FastAPI)
+│   ├── src/
+│   │   ├── main.py                     # API entry point & routes
+│   │   ├── agents/
+│   │   │   └── hospital_rag_agent.py   # Agent & Tool definitions
+│   │   ├── chains/
+│   │   │   ├── hospital_cypher_chain.py # Cypher generation logic
+│   │   │   └── hospital_review_chain.py # Vector search logic
+│   │   ├── tools/
+│   │   │   └── wait_times.py            # Simulated real-time tool
+│   │   ├── models/
+│   │   │   └── hospital_rag_query.py    # Pydantic schemas
+│   │   └── utils/
+│   │       └── async_utils.py          # Retry decorators
+│   └── Dockerfile
+│
+└── chatbot_frontend/           # PRESENTATION LAYER
+    ├── src/
+    │   └── main.py                     # Streamlit UI logic
+    └── Dockerfile
+
+
+```
+
+---
+
+## 📊 Knowledge Graph Schema
+
+The Neo4j database is modeled to handle multi-hop questions.
+
+### Nodes
+
+- **🏥 Hospital**: `{id, name, state_name}`
+- **💰 Payer**: `{id, name}`
+- **👨‍⚕️ 🩺 Physician**: `{id, name, dob, school, salary}`
+- **🧑‍🤝‍🧑 🤕 Patient**: `{id, name, sex, blood_type}`
+- **📅  Visit**: `{id, room_number, admission_type, status, diagnosis}`
+- **📝 Review**: `{id, text, patient_name, physician_name}`
+
+### Relationships
+
+- `(Patient)-[:HAS]->(Visit)`
+- `(Physician)-[:TREATS]->(Visit)`
+- `(Visit)-[:AT]->(Hospital)`
+- `(Visit)-[:COVERED_BY]->(Payer)`
+- `(Visit)-[:WRITES]->(Review)`
+- `(Hospital)-[:EMPLOYS]->(Physician)`
+
+<p align="center">
+  <img src="img/dbscheme.png" style="max-width: 80%; height: auto;" alt="Neo4j Schema">
+  <br>
+  <sub><i>Graph Ontology: Mapping relationships between Patients, Visits, and Providers.</i></sub>
+</p>
 
 ---
 
