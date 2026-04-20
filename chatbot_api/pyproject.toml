@@ -4,7 +4,8 @@ version = "0.1"
 dependencies = [
     "asyncio==3.4.3",
     "fastapi==0.109.0",
-    "langchain==1.2.3",
+    "langchain==1.2.15",
+    "langgraph==1.1.6",
     "langchain-community==0.4.1",
     "langchain-openai==1.1.7",
     "langchain-google-genai==4.2.0",

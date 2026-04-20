@@ -2,22 +2,18 @@ import os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_neo4j import Neo4jVector
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_openai import OpenAIEmbeddings
+from langchain.embeddings import init_embeddings
 from langchain.chat_models import init_chat_model
 
-HOSPITAL_QA_EMBEDDING_MODEL = os.getenv("HOSPITAL_QA_EMBEDDING_MODEL")
 HOSPITAL_QA_MODEL = os.getenv("HOSPITAL_QA_MODEL")    
 HOSPITAL_QA_PROVIDER = os.getenv("HOSPITAL_QA_PROVIDER")
+HOSPITAL_EMBEDDING_MODEL = os.getenv("HOSPITAL_EMBEDDING_MODEL")
+HOSPITAL_EMBEDDING_PROVIDER = os.getenv("HOSPITAL_EMBEDDING_PROVIDER")
 
-if HOSPITAL_QA_PROVIDER == "google_genai":
-    embedding = GoogleGenerativeAIEmbeddings(model=os.getenv("HOSPITAL_QA_EMBEDDING_MODEL"),
-                                            task_type="RETRIEVAL_DOCUMENT")
-else:
-    embedding = OpenAIEmbeddings()
+embedding_model = init_embeddings(model=HOSPITAL_EMBEDDING_MODEL, provider=HOSPITAL_EMBEDDING_PROVIDER)
 
 neo4j_vector_index = Neo4jVector.from_existing_graph(
-    embedding=embedding,
+    embedding=embedding_model,
     url=os.getenv("NEO4J_URI"),
     username=os.getenv("NEO4J_USERNAME"),
     password=os.getenv("NEO4J_PASSWORD"),
@@ -29,7 +25,7 @@ neo4j_vector_index = Neo4jVector.from_existing_graph(
         "text",
         "hospital_name",
     ],
-    embedding_node_property="embedding",
+    embedding_node_property="embedding_property",
 )
 
 retriever=neo4j_vector_index.as_retriever(search_kwargs={'k': 12})
