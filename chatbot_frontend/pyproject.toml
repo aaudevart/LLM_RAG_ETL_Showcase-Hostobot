@@ -3,7 +3,8 @@ name = "chatbot_frontend"
 version = "0.1"
 dependencies = [
    "requests==2.31.0",
-   "streamlit==1.29.0"
+   "streamlit==1.29.0",
+   "pyarrow==14.0.2"
 ]
 
 [project.optional-dependencies]
